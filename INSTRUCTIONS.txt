@@ -1,0 +1,35 @@
+# Deployment Instructions
+
+Your project is ready for two types of deployment!
+
+## 1. Static Website (GitHub Pages)
+Perfect for your portfolio. The "Scan" button is disabled, but "Demo Mode" works fully.
+
+1.  **Create a Repo**: Go to https://github.com/new and create a repository (e.g., `portscanner-demo`).
+2.  **Push Code**:
+    Open a terminal in this folder (`port_scanner_project`) and run:
+    ```bash
+    git remote add origin https://github.com/arnabdevs/port_scanner_project.git
+    git branch -M main
+    git push -u origin main
+    ```
+3.  **Enable Pages**:
+    - Go to your GitHub Repo **Settings** > **Pages**.
+    - Select Source: `Deploy from a branch`.
+    - Select Branch: `main` / `root`.
+    - Click **Save**.
+    - Wait 1-2 minutes for your URL!
+
+## 2. Full App (Render/Railway)
+GET the "Scan" button working!
+
+1.  **Push to GitHub** (Follow step 1 above).
+2.  **Deploy on Render.com**:
+    - Sign up for a free account.
+    - Click **New +** > **Web Service**.
+    - Connect your GitHub repository.
+    - **Important**: Render should auto-detect the `Dockerfile` and select **Docker** as the Runtime.
+    - If it selects "Python" by mistake, look for the **"Runtime"** or **"Environment"** dropdown and change it to **Docker**.
+    - Click **Create Web Service**.
+    
+Render will automatically read the `Dockerfile` in this folder, install Nmap, and start your full backend.
