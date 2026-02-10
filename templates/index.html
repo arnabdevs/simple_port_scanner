@@ -495,6 +495,17 @@
                     displayResults(data);
                 } else {
                     addTerminalLine(`ERROR: ${data.error}`, '✘');
+                    if (data.code === 'NMAP_MISSING') {
+                        addTerminalLine('Environment limitation detected.');
+                        addTerminalLine('To see full potential, run in SIMULATION MODE.');
+                        const simBtn = document.createElement('button');
+                        simBtn.className = 'btn btn-primary';
+                        simBtn.style.margin = '1rem auto';
+                        simBtn.style.fontSize = '0.9rem';
+                        simBtn.innerHTML = '<span>Run Simulation Now</span>';
+                        simBtn.onclick = () => performScan(target || 'DEMO_TARGET', true);
+                        terminal.appendChild(simBtn);
+                    }
                     statusMsg.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
                 }
             } catch (err) {

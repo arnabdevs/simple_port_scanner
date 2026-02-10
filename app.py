@@ -57,7 +57,11 @@ def scan():
                 else:
                     nm = nmap.PortScanner() # Hope it's in PATH
             except nmap.PortScannerError:
-                 return jsonify({'error': 'Nmap not found on system. Please install Nmap and add it to PATH.'}), 500
+                 return jsonify({
+                     'error': 'Nmap binary not found. This is common in serverless environments like Vercel.',
+                     'code': 'NMAP_MISSING',
+                     'suggestion': 'Use Demo Mode to preview the dashboard features.'
+                 }), 500
 
             nm.scan(hosts=target, arguments='-v -sT -sV --version-light')
             
