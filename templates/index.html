@@ -67,10 +67,35 @@
             text-align: center;
             margin-bottom: 4rem;
             padding-top: 2rem;
+            position: relative;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .github-link:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -84,6 +109,32 @@
             color: var(--text-dim);
             font-size: 1.1rem;
             font-weight: 300;
+        }
+
+        /* Terminal Simulation */
+        .terminal-container {
+            display: none;
+            background: #000;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid #1e293b;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #4ade80;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-line {
+            margin-bottom: 0.3rem;
+            line-height: 1.4;
+        }
+
+        .terminal-prefix {
+            color: var(--accent-secondary);
+            margin-right: 0.5rem;
         }
 
         .search-container {
@@ -303,6 +354,15 @@
 <body>
     <div class="container">
         <header>
+            <a href="https://github.com/arnabdevs" target="_blank" class="github-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                    </path>
+                </svg>
+                <span>Follow arnabdevs</span>
+            </a>
             <div class="logo">SentryScan</div>
             <div class="subtitle">Next-generation network exploration & analysis</div>
         </header>
@@ -326,6 +386,10 @@
                         <span>Try Demo Mode</span>
                     </button>
                     <div id="status-msg" style="margin-top: 1rem; font-size: 0.9rem; text-align: center;"></div>
+                </div>
+
+                <div class="terminal-container" id="terminal">
+                    <!-- Terminal output injected here -->
                 </div>
             </div>
 
@@ -389,12 +453,32 @@
         const tableBody = document.querySelector('#results-table tbody');
         const statusMsg = document.getElementById('status-msg');
 
+        const terminal = document.getElementById('terminal');
+
+        function addTerminalLine(text, prefix = '$') {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = `<span class="terminal-prefix">${prefix}</span>${text}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
         async function performScan(target, demo = false) {
             // Reset UI
             resultsContainer.style.display = 'none';
             tableBody.innerHTML = '';
             statusMsg.innerHTML = '';
             loader.style.display = 'block';
+            terminal.style.display = 'block';
+            terminal.innerHTML = '';
+
+            addTerminalLine(`Starting SentryScan engine ${demo ? '(DEMO MODE)' : ''}...`);
+            await new Promise(r => setTimeout(r, 600));
+            addTerminalLine(`Target identified: ${target}`);
+            await new Promise(r => setTimeout(r, 400));
+            addTerminalLine(`Initializing TCP connect modules...`);
+            await new Promise(r => setTimeout(r, 800));
+            addTerminalLine(`Probing ports 1-1024...`);
 
             try {
                 const response = await fetch('/scan', {
@@ -406,11 +490,15 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    addTerminalLine(`Scan complete. Found ${data.results.length} active entry points.`, '✔');
+                    await new Promise(r => setTimeout(r, 500));
                     displayResults(data);
                 } else {
+                    addTerminalLine(`ERROR: ${data.error}`, '✘');
                     statusMsg.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
                 }
             } catch (err) {
+                addTerminalLine(`CRITICAL: Connection timed out.`, '✘');
                 statusMsg.innerHTML = `<span style="color: #ef4444;">Network Error: Failed to reach server.</span>`;
             } finally {
                 loader.style.display = 'none';
