@@ -11,11 +11,7 @@ A robust network analysis tool featuring both a CLI and a modern Web Interface. 
 - **Smart Nmap Detection**: Automatically finds Nmap on Windows systems.
 
 ## Preview
-![Dashboard](screenshots/hero.png)
-*Modern Search Interface*
-
-![Results](screenshots/dashboard.png)
-*Interactive Results Dashboard*
+*SentryScan provides a sleek, modern interface for both scanning and demo purposes.*
 
 ## Project Statement
 SentryScan is designed to bridge the gap between complex command-line network tools and modern user experience. By leveraging Nmap's powerful scanning engine and wrapping it in a sleek, responsive web interface, it makes network analysis accessible to both security professionals and enthusiasts.

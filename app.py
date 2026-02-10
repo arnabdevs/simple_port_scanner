@@ -3,6 +3,8 @@ import ip_addr_scanner as scanner_logic
 import os
 
 app = Flask(__name__)
+# Alias for Vercel
+app_instance = app
 
 @app.route('/')
 def index():

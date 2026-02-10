@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentryScan | Advanced Port Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-glaze: rgba(30, 41, 59, 0.7);
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #06b6d4;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: pulse 15s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1.1) translate(5%, 5%);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-top: 2rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.05em;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .search-container {
+            background: var(--card-glaze);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin: 0 auto;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* Results Dashboard */
+        #results-container {
+            display: none;
+            margin-top: 4rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-glaze);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-title {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: var(--card-glaze);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.25rem;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--card-glaze);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 4rem 2rem 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        footer strong {
+            color: var(--text-main);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SentryScan</div>
+            <div class="subtitle">Next-generation network exploration & analysis</div>
+        </header>
+
+        <main>
+            <div class="search-container">
+                <h3 style="margin-bottom: 0.5rem;">Network Probe</h3>
+                <p style="color: var(--text-dim); font-size: 0.95rem;">Enter a host or IP address to initiate a deep
+                    scan.</p>
+
+                <div class="input-group">
+                    <input type="text" id="target" placeholder="e.g., 192.168.1.1 or scanme.nmap.org"
+                        autocomplete="off">
+                    <button class="btn btn-primary" id="scan-btn">
+                        <span>Initiate Scan</span>
+                    </button>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" id="demo-btn">
+                        <span>Try Demo Mode</span>
+                    </button>
+                    <div id="status-msg" style="margin-top: 1rem; font-size: 0.9rem; text-align: center;"></div>
+                </div>
+            </div>
+
+            <div class="loading-spinner" id="loader">
+                <div class="spinner"></div>
+                <p>Analyzing network infrastructure...</p>
+            </div>
+
+            <div id="results-container">
+                <h2 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                    Scan Results
+                    <span id="target-label"
+                        style="font-size: 1rem; font-weight: 400; color: var(--text-dim); background: rgba(255,255,255,0.05); padding: 0.2rem 0.6rem; border-radius: 6px;"></span>
+                </h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Total Ports Found</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Protocols Detected</div>
+                        <div class="stat-value" id="stat-proto">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Security State</div>
+                        <div class="stat-value" id="stat-state">Active</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Host</th>
+                                <th>Port</th>
+                                <th>Service</th>
+                                <th>Version</th>
+                                <th>State</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 SentryScan. Infrastructure analysis by <strong>Arnab Kumar Das</strong>.</p>
+        </footer>
+    </div>
+
+    <script>
+        const scanBtn = document.getElementById('scan-btn');
+        const demoBtn = document.getElementById('demo-btn');
+        const targetInput = document.getElementById('target');
+        const loader = document.getElementById('loader');
+        const resultsContainer = document.getElementById('results-container');
+        const tableBody = document.querySelector('#results-table tbody');
+        const statusMsg = document.getElementById('status-msg');
+
+        async function performScan(target, demo = false) {
+            // Reset UI
+            resultsContainer.style.display = 'none';
+            tableBody.innerHTML = '';
+            statusMsg.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, demo_mode: demo })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    statusMsg.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusMsg.innerHTML = `<span style="color: #ef4444;">Network Error: Failed to reach server.</span>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            resultsContainer.style.display = 'block';
+            document.getElementById('target-label').textContent = data.target;
+            document.getElementById('stat-total').textContent = data.results.length;
+
+            const protos = new Set(data.results.map(r => r.protocol));
+            document.getElementById('stat-proto').textContent = protos.size;
+
+            data.results.forEach(res => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${res.host}</td>
+                    <td><strong>${res.port}</strong>/${res.protocol}</td>
+                    <td>${res.service || 'unknown'}</td>
+                    <td>${res.product || ''} ${res.version || ''}</td>
+                    <td><span class="status-badge ${res.state === 'open' ? 'status-open' : ''}">${res.state}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        scanBtn.addEventListener('click', () => {
+            const target = targetInput.value.trim();
+            if (!target) {
+                statusMsg.innerHTML = '<span style="color: #f59e0b;">Please enter a target address.</span>';
+                return;
+            }
+            performScan(target);
+        });
+
+        demoBtn.addEventListener('click', () => {
+            performScan('DEMO_SCAN_TARGET', true);
+        });
+
+        targetInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') scanBtn.click();
+        });
+    </script>
+</body>
+
+</html>

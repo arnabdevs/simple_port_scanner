@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: port-scanner-web
-    env: docker
-    plan: free
-    region: oregon
-    envVars:
-      - key: PORT
-        value: 10000
